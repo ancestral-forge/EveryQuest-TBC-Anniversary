@@ -1,17 +1,17 @@
 ## Context
 
 See `proposal.md` for motivation and `specs/addon-runtime/spec.md` for the
-behavioral contract. Checkpoint 1 was merged through PR #37; current
-`origin/main` is `7e872ee`, where new history records are fresh whitelisted
-tables owned by `QuestStore`. The old `prepare-series-foundation` source branch
-predates its squash merge and MUST NOT be reused for another checkpoint.
+behavioral contract. Checkpoint 1 merged through PR #37 as `7e872ee`; checkpoint
+2 merged through PR #38 as `3414e7b`. For this evidence cleanup, current
+`origin/main` is `3fd9d80`. The old checkpoint source branches are historical
+evidence and MUST NOT be reused for another checkpoint.
 
-History lookup, static lookup, hydration, and canonical movement still use
-parallel scans and direct root mutations. Chain availability is still
+Checkpoint 2 made `QuestStore` the indexed boundary for history lookup, static
+lookup, hydration, and canonical movement. Chain availability is still
 implemented by local functions in `Everyquest.lua`, and the associated tests
 extract those functions from source text by matching their relative positions.
-PR #36 also introduced static-only future-phase metadata (`p`), which must remain
-outside history while continuing to render in both zone and history views.
+Future-phase metadata (`p`) remains static-only and continues to render in both
+zone and history views.
 
 The addon remains a Lua 5.1, Interface `20506` application with ten existing
 load-on-demand quest-data groups. Static data, schema version 1 character
@@ -43,18 +43,18 @@ continue to work independently.
 - Do not change data-module ownership, quest-data provenance, or the Blizzard
   event and secure-UI boundary.
 
-### Continuation after checkpoint 1
+### Continuation across checkpoints
 
 Every remaining checkpoint starts from the latest `origin/main` in a new clean
 worktree and task-named branch. The squash-merged
 `prepare-series-foundation` branch is historical evidence only; continuing it
 would reintroduce already merged commits and omit later main changes.
 
-Checkpoint 2 is limited to indexed `QuestStore` behavior and compatibility
-adapters. `QuestRelations`, `QuestState`, and Series UI remain separate later
-checkpoints. Before changing code, checkpoint 2 records the current main SHA,
-runs the unchanged baseline gate, and includes the future-phase history-render
-regression caused by the new static/history ownership boundary.
+Checkpoint 2 was limited to indexed `QuestStore` behavior and compatibility
+adapters. It recorded its main base, ran the unchanged baseline gate, covered
+the future-phase history-render regression caused by the static/history
+ownership boundary, and merged through PR #38. `QuestRelations`, `QuestState`,
+and Series UI remain separate later checkpoints.
 
 ## Decisions
 
