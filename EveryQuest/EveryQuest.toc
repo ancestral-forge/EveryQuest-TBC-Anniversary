@@ -5,7 +5,7 @@
 ## SavedVariables: EveryQuestDB
 ## SavedVariablesPerCharacter: EveryQuestDBPC
 ## OptionalDeps: Questie
-## Version: 2026.3.6
+## Version: 2026.3.7
 ## X-Maintainer: Ancestral Forge
 ## X-Original-Title: EveryQuest
 ## X-Original-Author: kandarz

@@ -7,6 +7,8 @@ release-5 provenance is documented in `SVN_IMPORT_NOTES.md`.
 
 ## [Unreleased]
 
+## [2026.3.7] - 2026-09-17
+
 ### Fixed
 
 - Show existing phase labels in quest history even when the saved record has
