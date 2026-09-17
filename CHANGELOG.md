@@ -11,8 +11,11 @@ release-5 provenance is documented in `SVN_IMPORT_NOTES.md`.
 
 ### Fixed
 
-- Show existing phase labels in quest history even when the saved record has
-  no phase metadata, while preserving the quest's status and color.
+- Label future Phase 4 and Phase 5 quests in zone and history lists, including
+  older saved history records that have no phase metadata.
+- Keep saved quest history and manual statuses anchored to canonical quest
+  records as quest data modules load, reducing stale or misplaced status data in
+  zone lists, history lists, and tooltips.
 - Prepare quest-data groups once during login/reload and report one startup
   summary, keeping later zone browsing free of repetitive loading and
   completed-sync messages.
