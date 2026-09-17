@@ -3,7 +3,7 @@
 ## Notes: Contains a list of quests for Eastern Kingdoms
 ## RequiredDeps: EveryQuest
 ## Author: Ancestral Forge
-## Version: 2026.3.6
+## Version: 2026.3.7
 ## LoadOnDemand: 1
 ## X-Maintainer: Ancestral Forge
 ## X-Original-Author: kandarz
