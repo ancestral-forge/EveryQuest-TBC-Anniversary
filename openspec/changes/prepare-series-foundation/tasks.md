@@ -11,7 +11,7 @@
 - [x] 2.3 Preserve schema version 1 and existing flat history fields without an eager migration; verify store and existing history/status regressions pass under Lua 5.1.
 - [x] 2.4 Create the review checkpoint `refactor: isolate character history from static quest data` and verify the commit contains only the OpenSpec foundation plus the history-isolation implementation and tests.
 - [x] 2.5 Deliver checkpoint 1 through PR #37, verify the PR head passed Lua and OpenSpec CI, and merge it to main as `7e872ee` after explicit authorization.
-- [ ] 2.6 In a human-run TBC Anniversary client on current main with script errors enabled, complete the checkpoint-1 smoke test for Questie enabled/disabled, zone/history rendering, manual status, Clear Status, and representative lifecycle paths; record live evidence separately from CI and install parity.
+- [x] 2.6 In a human-run TBC Anniversary client on current main with script errors enabled, complete the checkpoint-1 smoke test for Questie enabled/disabled, zone/history rendering, manual status, Clear Status, and representative lifecycle paths; record live evidence separately from CI and install parity.
 
 ## 3. Introduce Indexed Quest Lookup
 
@@ -22,7 +22,7 @@
 - [x] 3.5 Move and merge history through store-owned canonical-location operations so status, count, timestamps, and metadata survive while every old index/location entry is removed; verify idempotent reconciliation and duplicate-history cases.
 - [x] 3.6 Convert `GetQuestData`, `GetHistoryByQuestID`, canonical lookup, hydration, save, add, Clear Status, and reconciliation paths into store consumers or compatibility adapters; verify `tools/test-unmapped-quest-history.lua`, `tools/test-history-hydration.lua`, and `tools/test-quest-status-model.lua` pass.
 - [x] 3.7 Make history rows resolve static-only presentation metadata through indexed lookup, and add a regression proving a Phase 4/5 marker renders in history view although `p` is absent from the saved history record while the existing status color/suffix is preserved.
-- [x] 3.8 Run focused tests, `tools/verify-addon.sh`, and `openspec validate --all`; inspect the complete diff, then create the review checkpoint PR `refactor: introduce indexed quest store` with no QuestRelations, QuestState, Series UI, version, XML, localization, or quest-data scope.
+- [x] 3.8 Run focused tests, `tools/verify-addon.sh`, and `openspec validate --all`; inspect the complete diff, then deliver the review checkpoint through PR #38 as `refactor: introduce indexed quest store`, merged to `main` as `3414e7be4485efdce62fc7af8f0698671b6a512f`, with no QuestRelations, QuestState, Series UI, version, XML, localization, or quest-data scope.
 - [x] 3.9 Record the history-view phase-label correction under `CHANGELOG.md` `[Unreleased]` in this PR; reconcile the checkpoint's changelog scope with `CONTRIBUTING.md` and OpenSpec guidance, then run `tools/verify-addon.sh`, `openspec validate --all`, and `git diff --check`.
 
 ## 4. Extract Normalized Quest Relations
@@ -51,9 +51,22 @@
 
 ## 7. External Evidence and Delivery
 
-- [ ] 7.1 Complete and record the checkpoint-1 live smoke test described in task 2.6; static checks, remote CI, and install parity do not satisfy this task.
+- [x] 7.1 Complete and record the checkpoint-1 live smoke test described in task 2.6; static checks, remote CI, and install parity do not satisfy this task.
 - [x] 7.2 For checkpoint 1, sync only the `EveryQuest*` addon directories after explicit authorization and prove repository/client parity without modifying SavedVariables.
 - [x] 7.3 For checkpoint 1, push and open PR #37 after explicit authorization, verify its remote head SHA, and verify both remote CI jobs succeeded.
 - [x] 7.4 Merge checkpoint 1 after separate explicit authorization; the resulting main commit is `7e872ee`.
 - [ ] 7.5 For each remaining checkpoint, treat install parity, live client behavior, push, PR, remote CI, and merge as separate evidence/actions and perform only those explicitly authorized.
 - [ ] 7.6 Package, tag, publish, or release only after separate explicit authorization once the intended releasable set is complete; verify each resulting state independently.
+
+## Checkpoint 1 Live Evidence
+
+- TBC Anniversary, 2026-09-13 (user-reported): the checkpoint-1 smoke suite
+  passed on current `main` with script errors enabled. EveryQuest worked with
+  Questie enabled and disabled; History and zone lists rendered correctly;
+  manual status assignment and Clear Status behaved correctly; and the tested
+  accept, complete, turn-in, abandon, and fail lifecycle paths produced the
+  expected status updates. No Lua error was reported during the smoke suite.
+- This is live client evidence supplied by the user. It is recorded separately
+  from checkpoint-1 install parity, local validation, remote CI, and merge
+  evidence above. No new installation, package, tag, publication, or release is
+  claimed by this update.
