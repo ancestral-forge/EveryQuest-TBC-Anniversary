@@ -9,7 +9,7 @@ local source = sourceFile:read("*a")
 sourceFile:close()
 
 local statusSource = assert(source:match(
-	"(local function getStoredQuestStatus.-)\\nlocal function loadQuestDataAddon"
+	"(local function getStoredQuestStatus.-)\nlocal function loadQuestDataAddon"
 ))
 local loader = assert(loadstring(statusSource .. [[
 return isQuestUnavailable, getDisplayedQuestStatus, addQuestStatusLabel
