@@ -49,6 +49,7 @@ local EveryQuest = {
 local previousEveryQuest = _G.EveryQuest
 _G.EveryQuest = EveryQuest
 dofile("EveryQuest/QuestStore.lua")
+dofile("EveryQuest/QuestRelations.lua")
 _G.EveryQuest = previousEveryQuest
 EveryQuest.QuestStore:SetHistoryRoot(EveryQuest.db.char.history)
 
