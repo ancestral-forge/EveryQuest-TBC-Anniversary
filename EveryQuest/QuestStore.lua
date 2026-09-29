@@ -15,11 +15,17 @@ end
 
 local function copyMissingFields(target, source)
 	local changed = false
+	local hasStatus = target.status ~= nil
 	for field, value in pairs(source) do
-		if target[field] == nil then
+		if field ~= "statusSource" and target[field] == nil then
 			target[field] = value
 			changed = true
 		end
+	end
+	-- Provenance belongs to the adopted status, never to a losing record.
+	if not hasStatus and source.status ~= nil and target.statusSource ~= source.statusSource then
+		target.statusSource = source.statusSource
+		changed = true
 	end
 	return changed
 end
