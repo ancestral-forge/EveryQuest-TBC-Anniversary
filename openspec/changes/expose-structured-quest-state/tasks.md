@@ -14,14 +14,36 @@
 
 - [x] 3.1 Run the complete final tools/verify-addon.sh in the Actions worktree, retaining output for Luacheck, Lua 5.1, XML, TOC and all regression tests.
 - [x] 3.2 Run openspec validate --all using the repository-pinned CLI version 1.10.0.
-- [ ] 3.3 Inspect the complete resulting diff and all changed functions; verify no unrelated data, XML, version, packaging, permanent workflow or schema-version changes.
+- [x] 3.3 Inspect the complete resulting diff and all changed functions; verify no unrelated data, XML, version, packaging, permanent workflow or schema-version changes.
 - [ ] 3.4 Push only the task branch, open a PR for #48, verify its exact remote head and independently check normal PR CI.
 - [ ] 3.5 Human TBC Anniversary smoke test with script errors enabled: zone/history rows, all manual statuses/Clear Status, Questie on/off, accept/ready/turn-in/abandon/fail.
+
+## Automated evidence
+
+The successful [Actions preparation run](https://github.com/ancestral-forge/EveryQuest-TBC-Anniversary/actions/runs/36546658025)
+checked the unchanged main baseline in a detached worktree, then applied the
+bounded integration patch and ran the complete addon gate plus
+`npx --yes @fission-ai/openspec@1.10.0 validate --all` in a separate clean
+implementation worktree. It committed the validated result as
+`074c09cbe16dfb2a4600555ba83eb42ad249902b` on the task branch. The earlier
+preparation attempt found a startup-test harness that did not load the newly
+required module; the successful run includes that harness correction.
+
+Diff review of that implementation head against the pinned main confirmed the
+QuestState module, the single numeric adapter, all eight status-write sites,
+status/source merge pairing, the TOC load order, the direct state and chain tests,
+writer/adapter coverage, and the existing startup/status harness adjustments.
+The final tree has no temporary preparation script or workflow. Static quest
+data, XML, translations, version, licensing and schema-version declarations are
+unchanged. No checks were removed or weakened.
+
+PR: [#60](https://github.com/ancestral-forge/EveryQuest-TBC-Anniversary/pull/60).
+Normal PR CI on the delivered branch is tracked separately from the preparation
+run; this documentation commit triggers that independent gate.
 
 ## Evidence boundaries
 
 Local container full gate: unavailable (no GitHub clone/network and no Lua 5.1,
-Luacheck or OpenSpec). Local supplemental checks, if run, are not Lua 5.1 evidence.
-Actions execution is remote technical evidence, not local execution or live WoW.
-No install, package, merge, tag, publication, release or archive is authorized here.
-The temporary branch preparation workflow is removed from the final PR tree.
+Luacheck or OpenSpec). Actions execution is remote technical evidence, not local
+execution or live WoW. No install, package, merge, tag, publication, release or
+archive was performed. The change remains open for the human smoke-test evidence.
