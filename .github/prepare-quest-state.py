@@ -101,6 +101,12 @@ assert s.count("local function getStoredQuestStatus") == 1
 s = s.replace("local function getStoredQuestStatus", "EveryQuest%.QuestState:Configure")
 preparation_test.write_text(s)
 
+startup_test = root / "tools/test-quest-data-startup.lua"
+s = startup_test.read_text()
+old = '{"Core", "QuestStore", "Everyquest"}'
+assert s.count(old) == 1
+startup_test.write_text(s.replace(old, '{"Core", "QuestStore", "QuestRelations", "QuestState", "Everyquest"}'))
+
 # No state test may keep extracting the moved private implementation.
 for test in (root / "tools").glob("test-*.lua"):
     assert "local function getStoredQuestStatus" not in test.read_text(), test
