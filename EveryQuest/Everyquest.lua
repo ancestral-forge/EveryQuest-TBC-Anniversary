@@ -367,77 +367,6 @@ local function getStoredQuestStatus(quest)
 	return quest.status
 end
 
-local MAX_QUEST_ID = 16777215
-
-local function normalizeQuestID(value)
-	if type(value) ~= "number"
-		or value ~= value
-		or value < 1
-		or value > MAX_QUEST_ID
-		or value ~= math.floor(value) then
-		return nil
-	end
-	return value
-end
-
-local nextQuestInChainCache = {}
-
-local function getNextQuestInChainID(quest)
-	local questid = normalizeQuestID(quest and quest.id)
-	if not questid then
-		return nil
-	end
-
-	local embeddedNextQuestID = normalizeQuestID(quest.nextQuestInChain)
-	if embeddedNextQuestID then
-		return embeddedNextQuestID
-	end
-
-	local cached = nextQuestInChainCache[questid]
-	if cached ~= nil then
-		return cached or nil
-	end
-
-	-- Questie already maintains corrected TBC chain relationships. Use that
-	-- data when Questie is enabled without making it a required dependency.
-	local questieLoader = _G.QuestieLoader
-	if type(questieLoader) ~= "table" then
-		return nil
-	end
-
-	local importLookupOK, importModule = pcall(function()
-		return questieLoader.ImportModule
-	end)
-	if not importLookupOK or type(importModule) ~= "function" then
-		return nil
-	end
-
-	local importOK, questieDB = pcall(importModule, questieLoader, "QuestieDB")
-	if not importOK or type(questieDB) ~= "table" then
-		return nil
-	end
-
-	local queryLookupOK, queryQuestSingle = pcall(function()
-		return questieDB.QueryQuestSingle
-	end)
-	if not queryLookupOK or type(queryQuestSingle) ~= "function" then
-		return nil
-	end
-
-	local queryOK, nextQuestID = pcall(queryQuestSingle, questid, "nextQuestInChain")
-	if not queryOK then
-		return nil
-	end
-
-	nextQuestID = normalizeQuestID(nextQuestID)
-	if nextQuestID then
-		nextQuestInChainCache[questid] = nextQuestID
-		return nextQuestID
-	end
-
-	return nil
-end
-
 local function isQuestUnavailable(quest)
 	local requiredLevel = tonumber(quest and quest.r)
 	if requiredLevel and requiredLevel > 0 and UnitLevel then
@@ -447,17 +376,17 @@ local function isQuestUnavailable(quest)
 		end
 	end
 
-	local nextQuestID = getNextQuestInChainID(quest)
-	if not nextQuestID then
-		return false
+	local relations = EveryQuest.QuestRelations:Get(quest and quest.id, quest)
+	for _, nextQuestID in ipairs(relations.followUps) do
+		local nextQuestHistory = EveryQuest:GetHistoryByQuestID(nextQuestID)
+		local nextQuestStatus = getStoredQuestStatus(nextQuestHistory)
+		if nextQuestStatus == 0 or nextQuestStatus == 1 or nextQuestStatus == 2
+			or isQuestFlaggedCompleted(nextQuestID) then
+			return true
+		end
 	end
-
-	local nextQuestHistory = EveryQuest:GetHistoryByQuestID(nextQuestID)
-	local nextQuestStatus = getStoredQuestStatus(nextQuestHistory)
-	return nextQuestStatus == 0 or nextQuestStatus == 1 or nextQuestStatus == 2
-		or isQuestFlaggedCompleted(nextQuestID)
+	return false
 end
-
 local function getDisplayedQuestStatus(quest, history)
 	local storedStatus = getStoredQuestStatus(history or quest)
 	if storedStatus ~= nil then

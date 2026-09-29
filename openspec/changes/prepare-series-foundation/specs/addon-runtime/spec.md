@@ -98,6 +98,29 @@ provider data SHALL fail open.
 - **AND** does not replace those values with Questie data for the same
   relationship field
 
+#### Scenario: Relationship collections are normalized
+- **WHEN** bundled relationship input contains duplicate IDs, malformed IDs,
+  or a direct self relationship
+- **THEN** EveryQuest returns only unique finite integer quest IDs in
+  `1..16777215`
+- **AND** the direct self edge is omitted
+- **AND** each lookup returns fresh collections that cannot mutate cached
+  provider data
+
+#### Scenario: Reverse follow-ups are derived from forward facts
+- **WHEN** a bundled quest declares `requiresAll`, `requiresAny`, or
+  `breadcrumbs` relationships
+- **THEN** each valid prerequisite can resolve that quest through the reverse
+  `followUps` index
+- **AND** `exclusiveWith` remains a constraint and does not create a
+  follow-up edge
+
+#### Scenario: Relationship provenance is reported
+- **WHEN** bundled data, Questie, both providers, or neither provider
+  contributes valid relationship data
+- **THEN** the normalized result reports source provenance as `bundled`,
+  `questie`, `both`, or no source respectively
+
 #### Scenario: Questie supplies a valid follow-up
 - **WHEN** bundled data has no follow-up for a valid quest ID and optional
   Questie returns a valid `nextQuestInChain` ID

@@ -19,6 +19,7 @@ localization.lua
 
 Core.lua
 QuestStore.lua
+QuestRelations.lua
 QuestApiOverlay.lua
 Options.lua
 
