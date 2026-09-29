@@ -87,7 +87,7 @@ local function newHarness(failures, entries)
 		GetNumQuestLogEntries = function() return #h.entries end,
 		GetInfo = function(index) return h.entries[index] end,
 	}
-	for _, file in ipairs({"Core", "QuestStore", "Everyquest"}) do
+	for _, file in ipairs({"Core", "QuestStore", "QuestRelations", "QuestState", "Everyquest"}) do
 		local chunk = assert(loadfile("EveryQuest/" .. file .. ".lua"))
 		setfenv(chunk, env)()
 	end
