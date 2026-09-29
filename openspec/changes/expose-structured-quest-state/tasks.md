@@ -15,7 +15,7 @@
 - [x] 3.1 Run the complete final tools/verify-addon.sh in the Actions worktree, retaining output for Luacheck, Lua 5.1, XML, TOC and all regression tests.
 - [x] 3.2 Run openspec validate --all using the repository-pinned CLI version 1.10.0.
 - [x] 3.3 Inspect the complete resulting diff and all changed functions; verify no unrelated data, XML, version, packaging, permanent workflow or schema-version changes.
-- [ ] 3.4 Push only the task branch, open a PR for #48, verify its exact remote head and independently check normal PR CI.
+- [x] 3.4 Push only the task branch, open a PR for #48, verify its exact remote head and independently check normal PR CI.
 - [ ] 3.5 Human TBC Anniversary smoke test with script errors enabled: zone/history rows, all manual statuses/Clear Status, Questie on/off, accept/ready/turn-in/abandon/fail.
 
 ## Automated evidence
@@ -38,8 +38,13 @@ data, XML, translations, version, licensing and schema-version declarations are
 unchanged. No checks were removed or weakened.
 
 PR: [#60](https://github.com/ancestral-forge/EveryQuest-TBC-Anniversary/pull/60).
-Normal PR CI on the delivered branch is tracked separately from the preparation
-run; this documentation commit triggers that independent gate.
+Independent [normal PR CI](https://github.com/ancestral-forge/EveryQuest-TBC-Anniversary/actions/runs/36547051973)
+passed for head `ff4a459d12d16920b134c5aef8088362e68cd75e` against the pinned main
+(merge ref `5681588f28d79f4dceb67beb3b2e08ba2f7923a4`). The Lua lint job reported
+0 warnings / 0 errors across 42 files; Lua 5.1 compatibility, XML, TOC metadata
+and file references, and all 20 Lua regression scripts passed. The separate
+OpenSpec validation job passed as well. This evidence-only update changes no
+runtime code or tests; its own latest checks remain visible on the PR.
 
 ## Evidence boundaries
 
