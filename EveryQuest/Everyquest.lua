@@ -349,53 +349,15 @@ local function isQuestFlaggedCompleted(questid)
 	return false
 end
 
-local function getStoredQuestStatus(quest)
-	if not quest then
-		return nil
-	end
+EveryQuest.QuestState:Configure({
+	store = EveryQuest.QuestStore,
+	relations = EveryQuest.QuestRelations,
+	getPlayerLevel = function() return UnitLevel and UnitLevel("player") end,
+	isQuestFlaggedCompleted = isQuestFlaggedCompleted,
+})
 
-	-- Older EveryQuest versions stored Failed and Abandoned as -1. Preserve
-	-- those records while using the event timestamps to distinguish them.
-	if quest.status == -1 and quest.abandoned then
-		local abandonedAt = tonumber(quest.abandoned) or 0
-		local failedAt = tonumber(quest.failed) or 0
-		if not quest.failed or abandonedAt > failedAt then
-			return -3
-		end
-	end
-
-	return quest.status
-end
-
-local function isQuestUnavailable(quest)
-	local requiredLevel = tonumber(quest and quest.r)
-	if requiredLevel and requiredLevel > 0 and UnitLevel then
-		local playerLevel = UnitLevel("player") or 0
-		if playerLevel > 0 and playerLevel < requiredLevel then
-			return true
-		end
-	end
-
-	local relations = EveryQuest.QuestRelations:Get(quest and quest.id, quest)
-	for _, nextQuestID in ipairs(relations.followUps) do
-		local nextQuestHistory = EveryQuest:GetHistoryByQuestID(nextQuestID)
-		local nextQuestStatus = getStoredQuestStatus(nextQuestHistory)
-		if nextQuestStatus == 0 or nextQuestStatus == 1 or nextQuestStatus == 2
-			or isQuestFlaggedCompleted(nextQuestID) then
-			return true
-		end
-	end
-	return false
-end
 local function getDisplayedQuestStatus(quest, history)
-	local storedStatus = getStoredQuestStatus(history or quest)
-	if storedStatus ~= nil then
-		return storedStatus
-	end
-	if isQuestUnavailable(quest) then
-		return -2
-	end
-	return nil
+	return EveryQuest.QuestState:ToLegacyStatus(EveryQuest.QuestState:Evaluate(quest, history))
 end
 
 -- Disable each phase label in the release that opens that phase.
@@ -1226,6 +1188,7 @@ function EveryQuest:SyncCompletedQuestFlagsForGroup(group, reportStatus)
 							changed = changed + 1
 						end
 						history.status = 2
+						history.statusSource = "automatic"
 						history.abandoned = nil
 						history.failed = nil
 					end
@@ -1609,9 +1572,12 @@ function EveryQuest:SaveQuestHistoryByID(questid, category, qstatus, questTitle,
 		history.d = nil
 		changed = not added
 	end
-	if qstatus ~= nil and history.status ~= qstatus then
-		history.status = qstatus
-		changed = not added
+	if qstatus ~= nil then
+		if history.status ~= qstatus then
+			history.status = qstatus
+			changed = not added
+		end
+		history.statusSource = "automatic"
 	end
 
 	self:RequestFrameUpdate()
@@ -1638,6 +1604,7 @@ function EveryQuest:AddQuestByID(questid, category, qstatus)
 	if history and not category then
 		if qstatus ~= nil then
 			history.status = qstatus
+			history.statusSource = "automatic"
 		end
 		self:RequestFrameUpdate()
 		return questid, historyZoneID, history.d
@@ -1656,6 +1623,7 @@ function EveryQuest:AddQuestByID(questid, category, qstatus)
 			})
 			if qstatus ~= nil then
 				history.status = qstatus
+				history.statusSource = "automatic"
 			end
 			self:RequestFrameUpdate()
 			return questid, zoneid, history.d
@@ -1673,6 +1641,7 @@ function EveryQuest:MarkQuestByID(questid, status, timestampField, category, que
 	if savedQuestID ~= nil and savedQuestID ~= false and zoneid ~= nil then
 		local history = self.QuestStore:GetHistory(savedQuestID, zoneid)
 		history.status = status
+		history.statusSource = "automatic"
 		if timestampField == "failed" then
 			history.abandoned = nil
 		elseif timestampField == "abandoned" then
@@ -1697,6 +1666,7 @@ function EveryQuest:MarkQuestByName(questName, status, timestampField)
 		if savedQuestID and zoneid then
 			local history = self.QuestStore:GetHistory(savedQuestID, zoneid)
 			history.status = status
+			history.statusSource = "automatic"
 			if timestampField == "failed" then
 				history.abandoned = nil
 			elseif timestampField == "abandoned" then
@@ -1909,6 +1879,7 @@ function EveryQuest:QuestTurnedIn(questName, questid)
 			self:Debug("QuestTurnedIn - questid:"..concat(savedQuestID).." zoneid:"..concat(zoneid))
 			local history = self.QuestStore:GetHistory(savedQuestID, zoneid)
 			history.status = 2
+			history.statusSource = "automatic"
 			history.completed = time()
 			history.abandoned = nil
 			history.failed = nil
@@ -1952,6 +1923,7 @@ function EveryQuest:UpdateStatus(displayid, queststatus)
 		quest = quest,
 	})
 	history.status = queststatus
+	history.statusSource = "manual"
 	history.abandoned = nil
 	history.failed = nil
 	if queststatus ~= 2 then

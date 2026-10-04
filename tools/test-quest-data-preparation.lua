@@ -55,7 +55,7 @@ rawset(_G, "C_AddOns", {
 dofile("EveryQuest/QuestStore.lua")
 
 local concatSource = assert(source:match("(local function concat.-)\nlocal function getZoneListMenu"))
-local completedSource = assert(source:match("(local completedQuestFlags.-)\nlocal function getStoredQuestStatus"))
+local completedSource = assert(source:match("(local completedQuestFlags.-)\nEveryQuest%.QuestState:Configure"))
 local loaderSource = assert(source:match("(local function getQuestDataAddonName.-)\nlocal function getQuestLogInfo"))
 local prepSource = assert(source:match("(function EveryQuest:HydrateQuestHistoryForGroup.-)\nfunction EveryQuest:GetStatus"))
 local staticLookupSource = assert(source:match("(local canonicalQuestSearchGroups.-)\nfunction EveryQuest:ReconcileQuestHistoryForZone"))

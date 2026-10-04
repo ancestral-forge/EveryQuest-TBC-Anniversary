@@ -3,7 +3,7 @@ local source = sourceFile:read("*a")
 sourceFile:close()
 
 local statusHelperSource = assert(source:match(
-	"(local function getStoredQuestStatus.-)\nlocal function loadQuestDataAddon"
+	"(local function getDisplayedQuestStatus.-)\nlocal function loadQuestDataAddon"
 ))
 local getStatusSource = assert(source:match(
 	"(function EveryQuest:GetStatus.-)\nlocal function getNumQuestLogEntries"
@@ -50,6 +50,8 @@ local previousEveryQuest = _G.EveryQuest
 _G.EveryQuest = EveryQuest
 dofile("EveryQuest/QuestStore.lua")
 dofile("EveryQuest/QuestRelations.lua")
+dofile("EveryQuest/QuestState.lua")
+EveryQuest.QuestState:Configure({store = EveryQuest.QuestStore, relations = EveryQuest.QuestRelations})
 _G.EveryQuest = previousEveryQuest
 EveryQuest.QuestStore:SetHistoryRoot(EveryQuest.db.char.history)
 
@@ -94,6 +96,7 @@ assert(history.status == -3, "Abandoned must use a distinct stored status")
 
 menu = EveryQuest:BuildQuestMenu(8)
 menu[5].func()
+assert(history.statusSource == "manual", "context-menu status source must be manual")
 assert(history.status == -2, "Unavailable must be stored when selected")
 assert(EveryQuest:GetStatus(8, -2), "stored Unavailable status must be selected")
 
@@ -111,6 +114,7 @@ function EveryQuest:SaveQuestHistoryByID()
 end
 
 EveryQuest:MarkQuestByID(42, -1, "failed")
+assert(lifecycle.statusSource == "automatic", "lifecycle source must be automatic")
 assert(lifecycle.status == -1 and lifecycle.failed == 100 and lifecycle.abandoned == nil)
 now = 200
 EveryQuest:MarkQuestByID(42, -3, "abandoned")
