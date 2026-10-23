@@ -7,6 +7,8 @@ release-5 provenance is documented in `SVN_IMPORT_NOTES.md`.
 
 ## [Unreleased]
 
+## [2026.4.1] - 2026-10-23
+
 ### Changed
 
 - Remove the future Phase 4 marker from quests now that Zul'Aman is open,
