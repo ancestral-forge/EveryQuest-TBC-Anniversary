@@ -7,6 +7,11 @@ release-5 provenance is documented in `SVN_IMPORT_NOTES.md`.
 
 ## [Unreleased]
 
+### Changed
+
+- Remove the future Phase 4 marker from quests now that Zul'Aman is open,
+  while keeping Phase 5 markers for upcoming Sunwell content.
+
 ## [2026.3.7] - 2026-09-17
 
 ### Fixed

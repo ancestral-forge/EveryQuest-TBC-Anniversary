@@ -362,7 +362,7 @@ end
 
 -- Disable each phase label in the release that opens that phase.
 local FUTURE_PHASE_LABELS_ENABLED = {
-	[4] = true,
+	[4] = false,
 	[5] = true,
 }
 
