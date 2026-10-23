@@ -14,7 +14,7 @@ local formatterLoader = assert(loadstring(table.concat({
 local locale = setmetatable({Phase = "Phase"}, {__index = function(_, key) return key end})
 local getQuestPhaseLabel, addQuestStatusLabel, enabledPhases = formatterLoader(locale)
 
-assert(getQuestPhaseLabel({p = 4}) == "[Phase 4]")
+assert(getQuestPhaseLabel({p = 4}) == "", "Zul'Aman quests must no longer be labelled as future content")
 assert(getQuestPhaseLabel({p = 5}) == "[Phase 5]")
 assert(getQuestPhaseLabel({}) == "")
 assert(getQuestPhaseLabel({p = 3}) == "")
@@ -22,11 +22,11 @@ assert(getQuestPhaseLabel({p = 6}) == "")
 assert(getQuestPhaseLabel({p = "4"}) == "")
 
 local phaseAndStatus = "[70]" .. getQuestPhaseLabel({p = 4}) .. " Zul'Aman Quest"
-assert(addQuestStatusLabel(phaseAndStatus, -3) == "[70][Phase 4] Zul'Aman Quest (Abandoned)")
-assert(addQuestStatusLabel(phaseAndStatus, -1) == "[70][Phase 4] Zul'Aman Quest (Failed)")
+assert(addQuestStatusLabel(phaseAndStatus, -3) == "[70] Zul'Aman Quest (Abandoned)")
+assert(addQuestStatusLabel(phaseAndStatus, -1) == "[70] Zul'Aman Quest (Failed)")
 
-enabledPhases[4] = false
-assert(getQuestPhaseLabel({p = 4}) == "")
+enabledPhases[4] = true
+assert(getQuestPhaseLabel({p = 4}) == "[Phase 4]")
 assert(getQuestPhaseLabel({p = 5}) == "[Phase 5]")
 enabledPhases[4] = true
 enabledPhases[5] = false
@@ -35,7 +35,7 @@ assert(getQuestPhaseLabel({p = 5}) == "")
 enabledPhases[4] = false
 assert(getQuestPhaseLabel({p = 4}) == "")
 assert(getQuestPhaseLabel({p = 5}) == "")
-enabledPhases[4] = true
+enabledPhases[4] = false
 enabledPhases[5] = true
 
 local updateButtonSource = assert(source:match(
@@ -96,7 +96,7 @@ local phaseQuest = {id = 11165, n = "A Troll Among Trolls", l = 70, s = 3, p = 4
 EveryQuest.QuestStore:Configure({groupOrder = {"Raids"}})
 EveryQuest.QuestStore:RegisterGroup("Raids", {[3805] = {phaseQuest}})
 EveryQuest:UpdateButton(1, phaseQuest)
-assert(renderedText == "[70][Phase 4] A Troll Among Trolls")
+assert(renderedText == "[70] A Troll Among Trolls")
 assert(renderedColor == "FFFFFF", "phase labels must not create a status color")
 
 local phaseHistory = EveryQuest.QuestStore:EnsureHistoryRecord(11165, {
@@ -106,30 +106,30 @@ local phaseHistory = EveryQuest.QuestStore:EnsureHistoryRecord(11165, {
 assert(phaseHistory.p == nil, "phase metadata must not be persisted in history")
 phaseHistory.status = -1
 EveryQuest:UpdateButton(1, phaseQuest)
-assert(renderedText == "[70][Phase 4] A Troll Among Trolls (Failed)")
+assert(renderedText == "[70] A Troll Among Trolls (Failed)")
 assert(renderedColor == -1, "phase labels must preserve the existing status color")
 
 EveryQuest.db.profile.view = "history"
 EveryQuest:UpdateButton(1, phaseHistory)
-assert(renderedText == "[70][Phase 4] A Troll Among Trolls (Failed)", "history rows must join static phase metadata")
+assert(renderedText == "[70] A Troll Among Trolls (Failed)", "history rows must omit the released phase marker")
 assert(renderedColor == -1, "history rows must preserve the stored Failed color")
 assert(phaseHistory.p == nil, "rendering must not hydrate phase metadata into history")
 
 phaseHistory.status = -3
 EveryQuest:UpdateButton(1, phaseHistory)
-assert(renderedText == "[70][Phase 4] A Troll Among Trolls (Abandoned)")
+assert(renderedText == "[70] A Troll Among Trolls (Abandoned)")
 assert(renderedColor == -3, "history rows must preserve the stored Abandoned color")
 
 EveryQuest.db.profile.view = "zone"
 EveryQuest:UpdateButton(1, phaseQuest)
-assert(renderedText == "[70][Phase 4] A Troll Among Trolls (Abandoned)", "zone view must remain unchanged")
+assert(renderedText == "[70] A Troll Among Trolls (Abandoned)", "zone view must remain unchanged")
 
 function EveryQuest:GetQuestApiOverlayLabel(questID)
 	assert(questID == phaseQuest.id)
 	return "[?]"
 end
 EveryQuest:UpdateButton(1, phaseQuest)
-assert(renderedText == "[70][?][Phase 4] A Troll Among Trolls (Abandoned)")
+assert(renderedText == "[70][?] A Troll Among Trolls (Abandoned)")
 assert(renderedColor == -3)
 EveryQuest.db.profile.view = "history"
 phaseQuest.p = 5
@@ -138,6 +138,11 @@ EveryQuest:UpdateButton(1, phaseHistory)
 assert(renderedText == "[70][?][Phase 5] A Troll Among Trolls (Failed)")
 assert(renderedColor == -1)
 assert(phaseHistory.p == nil)
+
+EveryQuest.db.profile.view = "zone"
+EveryQuest:UpdateButton(1, phaseQuest)
+assert(renderedText == "[70][?][Phase 5] A Troll Among Trolls (Failed)", "zone rows must retain the future phase marker")
+assert(renderedColor == -1)
 
 local expectedPhases = {
 	[9524] = 4,
@@ -237,6 +242,8 @@ for group, zones in pairs(dataEnvironment.EveryQuestData) do
 					quest.p == expectedPhase,
 					("quest %d in %s/%s must be Phase %d"):format(quest.id, group, tostring(zoneID), expectedPhase)
 				)
+				assert(getQuestPhaseLabel(quest) == (expectedPhase == 5 and "[Phase 5]" or ""),
+					"unexpected release phase marker for quest " .. quest.id)
 				if seenExpected[quest.id] then
 					assert(seenExpected[quest.id] == quest.p, "duplicate phase metadata must agree for quest " .. quest.id)
 				else
